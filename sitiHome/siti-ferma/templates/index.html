@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сити-ферма №1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .data-table {
+            margin-bottom: 20px;
+        }
+
+        .main {
+            margin: 0 auto;
+            max-width: 1000px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        table {
+            border-collapse: collapse;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        td,
+        th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            max-width: 250px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .info {
+            max-width: 500px;
+            margin: 5px;
+            border: 2px solid red;
+            visibility: hidden;
+        }
+
+        header {
+            margin: 0 auto;
+            max-height: 150px;
+            max-width: 1000px;
+            width: 100%;
+            background-color: whitesmoke;
+            font-size: 20px;
+        }
+
+        .relayControl {
+            max-width: 500px;
+            border: 1px solid rgb(71, 71, 71);
+        }
+
+        .relay {
+            border: 1px solid rgb(71, 71, 71);
+            background-color: whitesmoke;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+
+        button:active {
+            background-color: #0056b3;
+        }
+
+
+
+        /* Медиа-запрос */
+        @media (max-width: 600px) {
+            table {
+                max-width: 400px;
+                width: 100%;
+            }
+
+            .relayControl {
+                max-width: 400px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header align="center">
+        <div>Добро пожаловать на Сити-ферму №1</div>
+        <div>Разработчик: Бурдейный Петр</div>
+    </header>
+    <div class="main">
+        <div class="DataTime">
+            <h4>Дата и время:</h4>
+            <span id="current-date">Загрузка даты...</span>
+            <span id="current-time">Загрузка времени...</span>
+        </div>
+        <div class="counters" align="center">
+            <h4>Счетчик дней до 100</h4>
+            <div id="counter">0</div>
+            <button onclick="incrementCounter()">+1 день</button>
+            <button onclick="resetCounter()">Обнулить</button>
+        </div>
+        <div class="weekValue">
+            <h4 align="center">Значение недельной показателей:</h4>
+            <button onclick="FirstWeek()">1-ая неделя</button>
+            <button onclick="SecondWeek()">2-ая неделя</button>
+            <button onclick="ThirdWeek()">3-ая неделя</button>
+            <button onclick="FourthWeek()">4-ая неделя</button>
+            <button onclick="FifthWeek()">5-ая неделя</button>
+        </div>
+        <div class="sensorReadings">
+            <h3>Показание датчиков</h3>
+            <div class="data-table">
+                <table>
+                    <tr>
+                        <th>Параметр</th>
+                        <th>Значение</th>
+                        <th>Корректность значений</th>
+                        <th>Минимум</th>
+                        <th>Максимум</th>
+                    </tr>
+                    <tr>
+                        <td>Температура</td>
+                        <td id="temperature">N/A</td>
+                        <td id="carrantTemp">Загрузка... </td>
+                        <td id="minTemp">18 <sup>o</sup>C</td>
+                        <td id="maxTemp">19 <sup>o</sup>C</td>
+                    </tr>
+                    <tr>
+                        <td>Влажность</td>
+                        <td id="humidity">N/A</td>
+                        <td id="carrantHum">Загрузка... </td>
+                        <td id="minHum">50%</td>
+                        <td id="maxHum">60%</td>
+                    </tr>
+                    <tr>
+                        <td>CO2</td>
+                        <td id="co2">N/A</td>
+                        <td id="carrantppm">Загрузка... </td>
+                        <td id="minCO2">600 ppm</td>
+                        <td id="maxCO2">700 ppm</td>
+                    </tr>
+                    <tr>
+                        <td>Температура питательного<br> раствора</td>
+                        <td id="temp_wather">N/A</td>
+                        <td id="carrantTempWather"> Загрузка...</td>
+                        <td id="minTempWather">20 <sup>o</sup>C</td>
+                        <td id="maxTempWather">22 <sup>o</sup>C</td>
+                    </tr>
+                    <tr>
+                        <td>pH питательного<br> раствора</td>
+                        <td id="ph_wather">N/A</td>
+                        <td id="carrantPH">Загрузка... </td>
+                        <td id="minPH">5.5 pH</td>
+                        <td id="maxPH">5.8 pH</td>
+                    </tr>
+                    <tr>
+                        <td>Минерализация питательного<br> раствора</td>
+                        <td id="m_wather">N/A</td>
+                        <td id="carrantMWather">Загрузка... </td>
+                        <td id="minMWather"></td>
+                        <td id="maxMWather"></td>
+                    </tr>
+                </table>
+                <div class="info" id="level_wather">Низкий уровень воды</div>
+            </div>
+        </div>
+        <br><br>
+        <div class="relayControl" align="center">
+            <h3>Управление реле</h3>
+
+            <!-- Блоки для управления реле -->
+            <div class="relay">
+                <h4>Реле 1</h4>
+                <button id="relay1On">Включить</button>
+                <button id="relay1Off">Выключить</button>
+                <p id="statusRelay1"></p>
+            </div>
+
+
+            <div class="relay">
+                <h4>Реле 2</h4>
+                <button id="relay2On">Включить</button>
+                <button id="relay2Off">Выключить</button>
+                <p id="statusRelay2"></p>
+            </div>
+
+            <div class="relay">
+                <h4>Реле 3</h4>
+                <button id="relay3On">Включить</button>
+                <button id="relay3Off">Выключить</button>
+                <p id="statusRelay3"></p>
+            </div>
+
+
+            <div class="relay">
+                <h4>Реле 4</h4>
+                <button id="relay4On">Включить</button>
+                <button id="relay4Off">Выключить</button>
+                <p id="statusRelay4"></p>
+            </div>
+
+            <div class="relay">
+                <h4>Реле 5</h4>
+                <button id="relay5On">Включить</button>
+                <button id="relay5Off">Выключить</button>
+                <p id="statusRelay5"></p>
+            </div>
+
+
+            <div class="relay">
+                <h4>Реле 6</h4>
+                <button id="relay6On">Включить</button>
+                <button id="relay6Off">Выключить</button>
+                <p id="statusRelay6"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // глобальные функции и переменные 
+        // функция sleep
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        let week = 1;
+        let count = 0; // Начальное значение счетчика
+        // Объект для хранения значения недель
+        const weekValues = {
+            tempMin: 18,
+            tempMax: 19,
+            humidityMin: 50,
+            humidityMax: 60,
+            co2Min: 600,
+            co2Max: 700,
+            temp_watherMin: 20,
+            temp_watherMax: 22,
+            ph_watherMin: 5.5,
+            ph_watherMax: 5.8,
+            m_watherMin: 0.3,
+            m_watherMax: 0.4,
+        };
+        function updateWeekValues() {
+            document.getElementById('minTemp').textContent = weekValues.tempMin + " °C";
+            document.getElementById('maxTemp').textContent = weekValues.tempMax + " °C";
+            document.getElementById('minHum').textContent = weekValues.humidityMin + "%";
+            document.getElementById('maxHum').textContent = weekValues.humidityMax + "%";
+            document.getElementById('minCO2').textContent = weekValues.co2Min + "ppm";
+            document.getElementById('maxCO2').textContent = weekValues.co2Max + "ppm";
+            document.getElementById('minTempWather').textContent = weekValues.temp_watherMin + " °C";
+            document.getElementById('maxTempWather').textContent = weekValues.temp_watherMax + " °C";
+            document.getElementById('minPH').textContent = weekValues.ph_watherMin + 'pH';
+            document.getElementById('maxPH').textContent = weekValues.ph_watherMax + 'pH';
+            document.getElementById('minMWather').textContent = weekValues.m_watherMin + 'mS/см';
+            document.getElementById('maxMWather').textContent = weekValues.m_watherMax + 'mS/см';
+        }
+        updateWeekValues();
+        function updateWeekValuesMWather() {
+            document.getElementById('minMWather').textContent = weekValues.m_watherMin + 'mS/см';
+            document.getElementById('maxMWather').textContent = weekValues.m_watherMax + 'mS/см';
+        }
+
+        // функция первой недели
+        async function FirstWeek() {
+            weekValues.m_watherMin = 0.3;
+            weekValues.m_watherMax = 0.4;
+            updateWeekValuesMWather();
+            week = 1;
+            count = 0;
+            updateCounter();
+        }
+        // функция второй недели
+        async function SecondWeek() {
+            weekValues.m_watherMin = 0.7;
+            weekValues.m_watherMax = 0.9;
+            updateWeekValuesMWather();
+            week = 2;
+            count = 7;
+            updateCounter();
+        }
+        // функция третьей недели
+        async function ThirdWeek() {
+            weekValues.m_watherMin = 1.1;
+            weekValues.m_watherMax = 1.3;
+            updateWeekValuesMWather();
+            week = 3;
+            count = 14;
+            updateCounter();
+        }
+        // функция четвертой недели
+        async function FourthWeek() {
+            weekValues.m_watherMin = 1.5;
+            weekValues.m_watherMax = 1.7;
+            updateWeekValuesMWather();
+            week = 4;
+            count = 21;
+            updateCounter();
+        }
+        // функция пятой недели
+        async function FifthWeek() {
+            weekValues.m_watherMin = 1.9;
+            weekValues.m_watherMax = 2.1;
+            updateWeekValuesMWather();
+            week = 5;
+            count = 28;
+            updateCounter();
+        }
+
+        // Получаем текущую дату и время
+        const now = new Date();
+        // Выведи дату
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const dateString = `${day}.${month}.${year}`;
+
+        // Форматируем время в формате HH:MM:SS
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timeString = `${hours}:${minutes}:${seconds}`;
+
+        // счетчик дней
+
+
+        // Функция для увеличения счетчика
+        function incrementCounter() {
+            if (count < 100) {
+                if (counter > 0 && counter < 7) {
+                    week = 1;
+                }
+                if (counter >= 7 && counter < 14) {
+                    week = 2;
+                }
+                if (counter >= 14 && counter < 21) {
+                    week = 3;
+                }
+                if (counter >= 21 && counter < 28) {
+                    week = 4;
+                }
+                if (counter >= 28) {
+                    week = 5;
+                }
+                count++;
+                updateCounter();
+            } else {
+                resetCounter();
+            }
+        }
+
+        // Функция для обнуления счетчика
+        function resetCounter() {
+            count = 0;
+            updateCounter();
+        }
+
+        // Функция для обновления отображаемого значения
+        function updateCounter() {
+            document.getElementById('counter').textContent = count;
+        }
+
+        // Инициализация счетчика при загрузке страницы
+        // setInterval(incrementCounter, 86400000);
+        if (timeString == "00:00:00") {
+            incrementCounter();
+            sleep(1000);
+        }
+        updateCounter();
+
+        //показ времени
+        function updateTime() {
+            // Обновляем содержимое элемента с id="current-time"
+            document.getElementById('current-time').textContent = timeString;
+            // Обновляем содержимое элемента с id="current-date"
+            document.getElementById('current-date').textContent = dateString;
+        }
+
+        // Обновляем время каждую секунду
+        setInterval(updateTime, 1000);
+
+        // Вызываем функцию сразу, чтобы время отобразилось без задержки
+        updateTime();
+        function updateValue_wather(num, minScale, maxScale) {
+            let min = 0;        // минимальное значение входного сигнала в Вольтах
+            let max = 5;        // максимальное значение входного сигнала в Вольтах
+            let k = (maxScale - minScale) / (max - min);
+            let b = minScale - k * min;
+            return (num * k + b).toFixed(2);
+        }
+
+        // Функция для обновления данных
+        function updateData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    let tempWather = updateValue_wather(data.temp_wather, -20, 80);
+                    let phWather = updateValue_wather(data.ph_wather, 0, 14);
+                    let mWather = (updateValue_wather(data.m_wather, 0, 4400)) / 1000;
+                    let ppm = data.CO2;
+                    document.getElementById('temperature').textContent = data.temperature + " °C";
+                    document.getElementById('humidity').textContent = data.humidity + " %";
+                    document.getElementById('co2').textContent = ppm + " ppm";
+                    document.getElementById('temp_wather').textContent = tempWather + " °C";
+                    document.getElementById('ph_wather').textContent = phWather + " pH";
+                    document.getElementById('m_wather').textContent = mWather + " mS/см";
+                    if (data.level_wather != 0) {
+                        document.getElementById('level_wather').style.visibility = "visible";
+                    }
+                    else {
+                        document.getElementById('level_wather').style.visibility = "hidden";
+                    }
+                    // загрузка корректности данных датчиков
+                    // проверка температуры
+                    if (data.temperature > 19) {
+                        document.getElementById('carrantTemp').textContent = "Температура высокая";
+                    }
+                    else {
+                        if (data.temperature < 18) {
+                            document.getElementById('carrantTemp').textContent = "Температура низкая";
+                        }
+                        else {
+                            document.getElementById('carrantTemp').textContent = "Температура в норме";
+                        }
+                    }
+                    // проверка влажности
+                    if (data.humidity < 50) {
+                        document.getElementById('carrantHum').textContent = "Влажность низкая";
+                    }
+                    else {
+                        if (data.humidity > 60) {
+                            document.getElementById('carrantHum').textContent = "Влажность высокая";
+                        }
+                        else {
+                            document.getElementById('carrantHum').textContent = "Влажность в норме";
+                        }
+                    }
+                    // проверка уровня CO2
+                    if (ppm > 700) {
+                        document.getElementById('carrantppm').textContent = "CO2 уровень высокий";
+                    }
+                    else {
+                        if (ppm < 600) {
+                            document.getElementById('carrantppm').textContent = "CO2 уровень низкий";
+                        }
+                        else {
+                            document.getElementById('carrantppm').textContent = "CO2 уровень в норме";
+                        }
+                    }
+                    // проверка pH 
+                    if (phWather < 5.5) {
+                        document.getElementById('carrantPH').textContent = "pH уровень низкий";
+                    }
+                    else {
+                        if (phWather > 5.8) {
+                            document.getElementById('carrantPH').textContent = "pH уровень высокий";
+                        }
+                        else {
+                            document.getElementById('carrantPH').textContent = "pH уровень в норме";
+                        }
+                    }
+                    // проверка уровня молярной дозы
+                    if (mWather > 0.4) {
+                        document.getElementById('carrantMWather').textContent = "Уровень молярной дозы высокий";
+                    }
+                    else {
+                        if (mWather < 0.3) {
+                            document.getElementById('carrantMWather').textContent = "Уровень молярной дозы низкий";
+                        }
+                        else {
+                            document.getElementById('carrantMWather').textContent = "Уровень молярной дозы в норме";
+                        }
+                    }
+                    // проверка температуры воды
+                    if (tempWather > 22) {
+                        document.getElementById('carrantTempWather').textContent = "Температура воды высокая";
+                    }
+                    else {
+                        if (tempWather < 20) {
+                            document.getElementById('carrantTempWather').textContent = "Температура воды низкая";
+                        }
+                        else {
+                            document.getElementById('carrantTempWather').textContent = "Температура воды в норме";
+                        }
+                    }
+
+
+                })
+                .catch(error => console.error('Ошибка при получении данных:', error));
+        }
+
+        // Обновляем данные каждые 1 секунды
+        setInterval(updateData, 1000);
+
+        // Обновляем данные сразу при загрузке страницы
+        updateData();
+
+        // Функция для отправки запроса на сервер для управление блоками реле
+        function sendRequest(url, statusElement) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    statusElement.innerText = data.message;
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
+        }
+
+        // Обработчики для кнопок реле
+        document.getElementById('relay1On').addEventListener('click', () => {
+            sendRequest('/relay1/on', document.getElementById('statusRelay1')); // полив растений
+        });
+
+        document.getElementById('relay1Off').addEventListener('click', () => {
+            sendRequest('/relay1/off', document.getElementById('statusRelay1'));
+        });
+
+        document.getElementById('relay2On').addEventListener('click', () => {
+            sendRequest('/relay2/on', document.getElementById('statusRelay2')); // свет
+        });
+
+        document.getElementById('relay2Off').addEventListener('click', () => {
+            sendRequest('/relay2/off', document.getElementById('statusRelay2'));
+        });
+
+        document.getElementById('relay3On').addEventListener('click', () => {
+            sendRequest('/relay3/on', document.getElementById('statusRelay3'));
+        });
+
+        document.getElementById('relay3Off').addEventListener('click', () => {
+            sendRequest('/relay3/off', document.getElementById('statusRelay3'));
+        });
+
+        document.getElementById('relay4On').addEventListener('click', () => {
+            sendRequest('/relay4/on', document.getElementById('statusRelay4'));
+        });
+
+        document.getElementById('relay4Off').addEventListener('click', () => {
+            sendRequest('/relay4/off', document.getElementById('statusRelay4'));
+        });
+        document.getElementById('relay5On').addEventListener('click', () => {
+            sendRequest('/relay5/on', document.getElementById('statusRelay5'));
+        });
+
+        document.getElementById('relay5Off').addEventListener('click', () => {
+            sendRequest('/relay5/off', document.getElementById('statusRelay5'));
+        });
+
+        document.getElementById('relay6On').addEventListener('click', () => {
+            sendRequest('/relay6/on', document.getElementById('statusRelay6'));
+        });
+
+        document.getElementById('relay6Off').addEventListener('click', () => {
+            sendRequest('/relay6/off', document.getElementById('statusRelay6'));
+        });
+        switch (week) {
+            case 1:
+                if (timeString == "00:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "06:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "09:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "12:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "15:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "18:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                break;
+            case 2:
+                if (timeString == "00:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "06:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "09:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "12:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "15:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "18:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                // свет
+                if (timeString == "15:00:00") {
+                    sendRequest('/relay2/on', document.getElementById('statusRelay2'));
+                }
+                if (timeString == "02:00:00") {
+                    sendRequest('/relay2/off', document.getElementById('statusRelay2'));
+                }
+                break;
+            case 3:
+                if (timeString == "00:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "06:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "08:24:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "10:48:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "13:12:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "15:36:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "18:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                // свет
+                if (timeString == "15:00:00") {
+                    sendRequest('/relay2/on', document.getElementById('statusRelay2'));
+                }
+                if (timeString == "02:00:00") {
+                    sendRequest('/relay2/off', document.getElementById('statusRelay2'));
+                }
+                break;
+            case 4:
+            if (timeString == "00:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "06:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "08:24:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "10:48:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "13:12:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "15:36:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "18:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(240000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                // свет
+                if (timeString == "12:00:00") {
+                    sendRequest('/relay2/on', document.getElementById('statusRelay2'));
+                }
+                if (timeString == "00:00:00") {
+                    sendRequest('/relay2/off', document.getElementById('statusRelay2'));
+                }
+                break;
+            case 5:
+            if (timeString == "00:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "06:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "08:24:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "10:48:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "13:12:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "15:36:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                if (timeString == "18:00:00") {
+                    sendRequest('/relay1/on', document.getElementById('statusRelay1'));
+                    sleep(180000);
+                    sendRequest('/relay1/off', document.getElementById('statusRelay1'))
+                }
+                // свет
+                if (timeString == "12:00:00") {
+                    sendRequest('/relay2/on', document.getElementById('statusRelay2'));
+                }
+                if (timeString == "00:00:00") {
+                    sendRequest('/relay2/off', document.getElementById('statusRelay2'));
+                }
+                break;
+        }
+    </script>
+</body>
+
+</html>
